@@ -1,0 +1,4 @@
+D:\3 курс\УП2\C++\Horse\x64\Debug\Horse.vcxproj.AssemblyReference.cache
+D:\3 курс\УП2\C++\Horse\x64\Debug\Horse.exe
+D:\3 курс\УП2\C++\Horse\x64\Debug\Horse.MyForm.resources
+D:\3 курс\УП2\C++\Horse\x64\Debug\Horse.vcxproj.GenerateResource.cache

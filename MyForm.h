@@ -1,0 +1,496 @@
+#pragma once
+
+#include <cstdlib>
+#include <ctime>
+
+namespace HorseRace {
+
+	using namespace System;
+	using namespace System::ComponentModel;
+	using namespace System::Collections;
+	using namespace System::Windows::Forms;
+	using namespace System::Data;
+	using namespace System::Drawing;
+
+	public ref class MyForm : public System::Windows::Forms::Form
+	{
+	public:
+		MyForm(void)
+		{
+			InitializeComponent();
+
+			this->WindowState = System::Windows::Forms::FormWindowState::Maximized;
+
+			// Инициализация генератора случайных чисел
+			srand(static_cast<unsigned int>(time(0)));
+
+			// Инициализация массива пар имя игрока и номера лошади
+			playerHorsePairs = gcnew array<String^, 2>(MAX_PLAYERS, 2);
+
+			// Инициализация переменных
+			playerCount = 0;
+			raceCount = 0;
+			horsePoints = gcnew array<int>(MAX_HORSES);
+			horsePosition = gcnew array<int>(MAX_HORSES);
+			for (int i = 0; i < MAX_HORSES; i++) {
+				horsePoints[i] = 0;
+				horsePosition[i] = 0;
+			}
+
+			selectedHorses = gcnew array<int>(MAX_PLAYERS);
+			for (int i = 0; i < MAX_PLAYERS; i++) {
+				selectedHorses[i] = 0;
+			}
+
+			// Инициализируем таймер
+			timer1 = gcnew Timer();
+			timer1->Interval = 100; // Интервал в миллисекундах (100 мс)
+			timer1->Tick += gcnew EventHandler(this, &MyForm::Timer_Tick);
+		}
+
+
+	protected:
+		~MyForm()
+		{
+			if (components)
+			{
+				delete components;
+			}
+		}
+	private: System::Windows::Forms::Button^ AddPlayer;
+	private: System::Windows::Forms::Button^ RandomAddPlayer;
+	private: System::Windows::Forms::Button^ ClearArrayPlayer;
+	private: System::Windows::Forms::Button^ Start;
+	private: System::Windows::Forms::Label^ label1;
+	private: System::Windows::Forms::Label^ label2;
+	private: System::Windows::Forms::TextBox^ NamePlayer;
+	private: System::Windows::Forms::TextBox^ NumberHorse;
+	private: System::Windows::Forms::ListBox^ ArrayPlayer;
+	private: System::Windows::Forms::Panel^ ArenaGame;
+
+
+	protected:
+
+	private:
+		System::ComponentModel::Container^ components;
+	private:
+		System::Windows::Forms::Timer^ timer1;
+
+#pragma region Windows Form Designer generated code
+		void InitializeComponent(void)
+		{
+			this->AddPlayer = (gcnew System::Windows::Forms::Button());
+			this->RandomAddPlayer = (gcnew System::Windows::Forms::Button());
+			this->ClearArrayPlayer = (gcnew System::Windows::Forms::Button());
+			this->Start = (gcnew System::Windows::Forms::Button());
+			this->label1 = (gcnew System::Windows::Forms::Label());
+			this->label2 = (gcnew System::Windows::Forms::Label());
+			this->NamePlayer = (gcnew System::Windows::Forms::TextBox());
+			this->NumberHorse = (gcnew System::Windows::Forms::TextBox());
+			this->ArrayPlayer = (gcnew System::Windows::Forms::ListBox());
+			this->ArenaGame = (gcnew System::Windows::Forms::Panel());
+			this->SuspendLayout();
+			// 
+			// AddPlayer
+			// 
+			this->AddPlayer->BackColor = System::Drawing::Color::MediumTurquoise;
+			this->AddPlayer->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(204)));
+			this->AddPlayer->Location = System::Drawing::Point(12, 12);
+			this->AddPlayer->Name = L"AddPlayer";
+			this->AddPlayer->Size = System::Drawing::Size(206, 63);
+			this->AddPlayer->TabIndex = 0;
+			this->AddPlayer->Text = L"Добавить игрока";
+			this->AddPlayer->UseVisualStyleBackColor = false;
+			this->AddPlayer->Click += gcnew System::EventHandler(this, &MyForm::AddPlayer_Click);
+			// 
+			// RandomAddPlayer
+			// 
+			this->RandomAddPlayer->BackColor = System::Drawing::Color::PaleTurquoise;
+			this->RandomAddPlayer->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(204)));
+			this->RandomAddPlayer->Location = System::Drawing::Point(12, 81);
+			this->RandomAddPlayer->Name = L"RandomAddPlayer";
+			this->RandomAddPlayer->Size = System::Drawing::Size(206, 63);
+			this->RandomAddPlayer->TabIndex = 1;
+			this->RandomAddPlayer->Text = L"Заполнить участников";
+			this->RandomAddPlayer->UseVisualStyleBackColor = false;
+			this->RandomAddPlayer->Click += gcnew System::EventHandler(this, &MyForm::RandomAddPlayer_Click);
+			// 
+			// ClearArrayPlayer
+			// 
+			this->ClearArrayPlayer->BackColor = System::Drawing::Color::Crimson;
+			this->ClearArrayPlayer->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(204)));
+			this->ClearArrayPlayer->Location = System::Drawing::Point(12, 150);
+			this->ClearArrayPlayer->Name = L"ClearArrayPlayer";
+			this->ClearArrayPlayer->Size = System::Drawing::Size(206, 63);
+			this->ClearArrayPlayer->TabIndex = 2;
+			this->ClearArrayPlayer->Text = L"Удалить участников";
+			this->ClearArrayPlayer->UseVisualStyleBackColor = false;
+			this->ClearArrayPlayer->Click += gcnew System::EventHandler(this, &MyForm::ClearArrayPlayer_Click);
+			// 
+			// Start
+			// 
+			this->Start->BackColor = System::Drawing::SystemColors::HotTrack;
+			this->Start->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(204)));
+			this->Start->Location = System::Drawing::Point(224, 12);
+			this->Start->Name = L"Start";
+			this->Start->Size = System::Drawing::Size(206, 63);
+			this->Start->TabIndex = 3;
+			this->Start->Text = L"Начать забег";
+			this->Start->UseVisualStyleBackColor = false;
+			this->Start->Click += gcnew System::EventHandler(this, &MyForm::Start_Click);
+			// 
+			// label1
+			// 
+			this->label1->AutoSize = true;
+			this->label1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(204)));
+			this->label1->Location = System::Drawing::Point(12, 280);
+			this->label1->Name = L"label1";
+			this->label1->Size = System::Drawing::Size(40, 20);
+			this->label1->TabIndex = 4;
+			this->label1->Text = L"Имя";
+			// 
+			// label2
+			// 
+			this->label2->AutoSize = true;
+			this->label2->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(204)));
+			this->label2->Location = System::Drawing::Point(12, 318);
+			this->label2->Name = L"label2";
+			this->label2->Size = System::Drawing::Size(98, 20);
+			this->label2->TabIndex = 5;
+			this->label2->Text = L"Номер коня";
+			// 
+			// NamePlayer
+			// 
+			this->NamePlayer->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(204)));
+			this->NamePlayer->Location = System::Drawing::Point(116, 274);
+			this->NamePlayer->Multiline = true;
+			this->NamePlayer->Name = L"NamePlayer";
+			this->NamePlayer->Size = System::Drawing::Size(225, 32);
+			this->NamePlayer->TabIndex = 6;
+			this->NamePlayer->TextChanged += gcnew System::EventHandler(this, &MyForm::NamePlayer_TextChanged);
+			// 
+			// NumberHorse
+			// 
+			this->NumberHorse->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(204)));
+			this->NumberHorse->Location = System::Drawing::Point(116, 312);
+			this->NumberHorse->Multiline = true;
+			this->NumberHorse->Name = L"NumberHorse";
+			this->NumberHorse->Size = System::Drawing::Size(225, 32);
+			this->NumberHorse->TabIndex = 7;
+			// 
+			// ArrayPlayer
+			// 
+			this->ArrayPlayer->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 15.75F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(204)));
+			this->ArrayPlayer->FormattingEnabled = true;
+			this->ArrayPlayer->ItemHeight = 25;
+			this->ArrayPlayer->Location = System::Drawing::Point(16, 368);
+			this->ArrayPlayer->Name = L"ArrayPlayer";
+			this->ArrayPlayer->Size = System::Drawing::Size(414, 629);
+			this->ArrayPlayer->TabIndex = 8;
+			// 
+			// ArenaGame
+			// 
+			this->ArenaGame->BackColor = System::Drawing::Color::Green;
+			this->ArenaGame->Location = System::Drawing::Point(449, 3);
+			this->ArenaGame->Name = L"ArenaGame";
+			this->ArenaGame->Size = System::Drawing::Size(1452, 1035);
+			this->ArenaGame->TabIndex = 9;
+			// 
+			// MyForm
+			// 
+			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
+			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
+			this->BackColor = System::Drawing::Color::Beige;
+			this->ClientSize = System::Drawing::Size(1920, 1061);
+			this->Controls->Add(this->NamePlayer);
+			this->Controls->Add(this->NumberHorse);
+			this->Controls->Add(this->Start);
+			this->Controls->Add(this->ArenaGame);
+			this->Controls->Add(this->ArrayPlayer);
+			this->Controls->Add(this->label2);
+			this->Controls->Add(this->label1);
+			this->Controls->Add(this->ClearArrayPlayer);
+			this->Controls->Add(this->RandomAddPlayer);
+			this->Controls->Add(this->AddPlayer);
+			this->Name = L"MyForm";
+			this->Text = L"MyForm";
+			this->ResumeLayout(false);
+			this->PerformLayout();
+
+		}
+#pragma endregion
+
+		// Константы
+		static const int MAX_PLAYERS = 10;
+		static const int MAX_HORSES = 10;
+
+	private: array<int>^ selectedHorses;
+
+		   // Переменные
+		   array<String^, 2>^ playerHorsePairs;
+		   int playerCount;
+		   int raceCount;
+		   array<int>^ horsePoints;
+		   array<int>^ horsePosition;
+		   int winningHorseIndex = -1;
+		   int raceCompletedCount = 0;
+
+		   // Проверяет, выбран ли уже конь с указанным номером
+		   bool IsHorseNumberSelected(int horseNumber) {
+			   for (int i = 0; i < playerCount; i++) {
+				   if (playerHorsePairs[i, 1] == horseNumber.ToString()) {
+					   return true; // Найден выбранный номер коня
+				   }
+			   }
+			   return false; // Номер коня еще не выбран
+		   }
+
+		   // Метод для создания и размещения объектов на форме
+		   void CreateGameObjects() {
+			   // Путь к изображению
+			   String^ imagePath = "D:/3 курс/УП2/C++/Horse/img/pngwing.com.png";
+
+			   // Проверяем, существует ли файл изображения
+			   if (System::IO::File::Exists(imagePath)) {
+				   // Определяем общее количество коней
+				   int totalHorses = MAX_HORSES;
+
+				   // Вычисляем высоту панели ArenaGame
+				   int arenaHeight = this->ArenaGame->Height;
+				   int objectHeight = 60;
+				   int objectWidth = 60;
+
+				   // Вычисляем расстояние между объектами исходя из количества коней и высоты панели
+				   int spacing = (arenaHeight - totalHorses * objectHeight) / (totalHorses + 1);
+
+				   // Создаем объекты в столбце на панели ArenaGame
+				   for (int i = 0; i < totalHorses; i++) {
+					   // Создаем экземпляр PictureBox и устанавливаем фоновое изображение
+					   PictureBox^ pictureBox = gcnew PictureBox();
+					   pictureBox->Image = Image::FromFile(imagePath);
+
+					   // Устанавливаем размер объекта
+					   pictureBox->Size = System::Drawing::Size(objectWidth, objectHeight);
+
+					   // Рассчитываем позицию объекта
+					   int x = 5; // Позиция X (можете изменить по вашему усмотрению)
+					   int y = (i + 1) * spacing + i * objectHeight; // Позиция Y
+
+					   // Устанавливаем позицию объекта на панели ArenaGame
+					   pictureBox->Location = System::Drawing::Point(x, y);
+
+					   // Настройка отображения изображения в PictureBox
+					   pictureBox->SizeMode = PictureBoxSizeMode::StretchImage;
+
+					   // Устанавливаем цвет фона для каждого PictureBox
+					   pictureBox->BackColor = Color::Transparent;
+
+					   // Добавляем PictureBox на панель ArenaGame
+					   this->ArenaGame->Controls->Add(pictureBox);
+				   }
+			   }
+			   else {
+				   // Если файл изображения не найден, выводим сообщение об ошибке
+				   MessageBox::Show("Файл изображения не найден.");
+			   }
+		   }
+
+private: System::Void MoveHorses() {
+	// Переменная для определения, достиг ли хоть один конь конца арены
+	bool isRaceFinished = false;
+
+	// Перемещаем каждого коня на случайное расстояние вправо (от 1 до 15 единиц)
+	for each (Control ^ control in ArenaGame->Controls) {
+		if (PictureBox^ pictureBox = dynamic_cast<PictureBox^>(control)) {
+			// Проверяем, достиг ли конь конца арены
+			if (pictureBox->Location.X + pictureBox->Width >= ArenaGame->Width) {
+				// Останавливаем коня при достижении границы арены
+				pictureBox->Left = ArenaGame->Width - pictureBox->Width;
+				isRaceFinished = true; // Если да, устанавливаем флаг о завершении гонки
+				// Получаем индекс победившего коня и сохраняем его
+				winningHorseIndex = ArenaGame->Controls->IndexOf(pictureBox);
+				// Добавляем коню очки только в случае финиша
+				horsePoints[winningHorseIndex] += 5;
+			}
+			else {
+				// Генерируем случайное число от 1 до 33 для перемещения коня
+				int moveDistance = rand() % 33 + 1;
+				// Перемещаем коня на указанное расстояние вправо
+				pictureBox->Left += moveDistance;
+			}
+		}
+	}
+
+	// Если конь достиг конца арены, выводим сообщение о завершении гонки
+	if (isRaceFinished) {
+		timer1->Stop();
+
+		// Подготавливаем сообщение о завершении гонки с информацией о конях и их очках
+		String^ raceResultMessage = "Гонка завершена! Результаты:\n";
+		for (int i = 0; i < MAX_HORSES; i++) {
+			raceResultMessage += "Конь " + (i + 1) + ": " + horsePoints[i] + " очков\n";
+		}
+		MessageBox::Show(raceResultMessage);
+
+		raceCompletedCount++; // Увеличиваем количество завершенных забегов
+
+		// Если все забеги завершены, останавливаем таймер
+		if (raceCompletedCount == 5) {
+			timer1->Stop();
+			
+			int maxPointsIndex = 0;
+			bool isDraw = true;
+			for (int i = 1; i < MAX_HORSES; i++) {
+				if (horsePoints[i] > horsePoints[maxPointsIndex]) {
+					maxPointsIndex = i;
+					isDraw = false;
+				}
+				else if (horsePoints[i] < horsePoints[maxPointsIndex]) {
+					isDraw = false; // Если нашли лошадь с меньшим количеством очков, то не ничья
+				}
+			}
+
+			if (isDraw) {
+				MessageBox::Show("Гонка завершилась ничьей!");
+				return;
+			}
+
+
+			// Получим имя игрока, связанного с лошадью с максимальным количеством очков
+			String^ winnerName = playerHorsePairs[maxPointsIndex, 0];
+			MessageBox::Show("Все забеги завершены! Победитель: " + winnerName + ", Лошадь: " + (winningHorseIndex + 1));
+		}
+	}
+
+	// Если забег завершен или это первый забег, перемещаем всех коней обратно в начало арены
+	if (isRaceFinished) {
+		for each (Control ^ control in ArenaGame->Controls) {
+			if (PictureBox^ pictureBox = dynamic_cast<PictureBox^>(control)) {
+				pictureBox->Location = Point(5, pictureBox->Location.Y);
+			}
+		}
+	}
+
+	// Если не все забеги завершены, запускаем таймер для следующего забега
+	if (raceCompletedCount < 5) {
+		timer1->Start();
+	}
+	else
+	{
+		raceCompletedCount = 0;
+	}
+}
+
+
+	private:System::Void Timer_Tick(System::Object^ sender, System::EventArgs^ e) {
+		MoveHorses();
+	}
+		   // Добавление игрока с введенными данными
+	private: System::Void AddPlayer_Click(System::Object^ sender, System::EventArgs^ e) {
+		// Проверяем, что в массиве еще есть свободные места
+		if (playerCount >= MAX_PLAYERS) {
+			MessageBox::Show("Все участники скомплектованы.");
+			return;
+		}
+
+		// Проверяем, что оба текстовых поля заполнены
+		if (NamePlayer->Text == "" || NumberHorse->Text == "") {
+			MessageBox::Show("Пожалуйста, заполните все поля.");
+			return;
+		}
+
+		// Проверяем, что в поле номера коня введены только цифры
+		for each (char c in NumberHorse->Text) {
+			if (!Char::IsDigit(c)) {
+				MessageBox::Show("Номер коня должен содержать только цифры.");
+				return;
+			}
+		}
+
+
+		int horseNumber = Convert::ToInt32(NumberHorse->Text);
+
+		// Проверяем, что номер коня находится в диапазоне от 1 до 10
+		if (horseNumber < 1 || horseNumber > MAX_HORSES) {
+			MessageBox::Show("Номер коня должен быть от 1 до 10.");
+			return;
+		}
+
+		// Проверяем, что номер коня не выбран другим игроком
+		if (IsHorseNumberSelected(horseNumber)) {
+			MessageBox::Show("Этот номер коня уже выбран другим игроком.");
+			return;
+		}
+
+		// Добавляем имя игрока и номер коня в массив
+		playerHorsePairs[playerCount, 0] = NamePlayer->Text;
+		playerHorsePairs[playerCount, 1] = NumberHorse->Text;
+		// Добавляем информацию об игроке в список
+		ArrayPlayer->Items->Add(playerHorsePairs[playerCount, 0] + ", Конь " + playerHorsePairs[playerCount, 1]);
+		// Увеличиваем счетчик игроков
+		playerCount++;
+		// Очищаем текстовые поля
+		NamePlayer->Text = "";
+		NumberHorse->Text = "";
+	}
+
+		   // Добавление игрока с рандомными данными
+	private: System::Void RandomAddPlayer_Click(System::Object^ sender, System::EventArgs^ e) {
+		// Проверяем, что в массиве еще есть свободные места
+		if (playerCount >= MAX_PLAYERS) {
+			MessageBox::Show("Все места в массиве уже заполнены.");
+			return;
+		}
+
+		// Заполняем случайным образом оставшиеся пустые места в массиве
+		for (int i = playerCount; i < MAX_PLAYERS; i++) {
+			int horseNumber;
+			do {
+				horseNumber = rand() % MAX_HORSES + 1;
+			} while (IsHorseNumberSelected(horseNumber)); // Проверяем, что выбранный номер коня еще не использован
+
+			playerHorsePairs[i, 0] = "Игрок " + (i + 1); // Уникальное имя игрока
+			playerHorsePairs[i, 1] = horseNumber.ToString();
+			// Добавляем информацию об игроке в список
+			ArrayPlayer->Items->Add(playerHorsePairs[i, 0] + ", Конь " + playerHorsePairs[i, 1]);
+			playerCount++; // Увеличиваем счетчик игроков
+		}
+	}
+
+	private: System::Void ClearArrayPlayer_Click(System::Object^ sender, System::EventArgs^ e) {
+		// Очищаем массив и список
+		ArrayPlayer->Items->Clear();
+		playerCount = 0;
+		raceCount = 0;
+		for (int i = 0; i < MAX_HORSES; i++) {
+			horsePoints[i] = 0;
+			horsePosition[i] = 0;
+		}
+	}
+
+	private: System::Void Start_Click(System::Object^ sender, System::EventArgs^ e) {
+		if (playerCount == 10) {
+			ArenaGame->Controls->Clear();
+			CreateGameObjects();
+			for (int i = 0; i < MAX_HORSES; i++) {
+				horsePoints[i] = 0;
+			}
+			timer1->Start();
+		}
+		else {
+			MessageBox::Show("Должно быть 10 участников!");
+		}
+	}
+	private: System::Void NamePlayer_TextChanged(System::Object^ sender, System::EventArgs^ e) {
+	}
+};
+}

@@ -1,0 +1,4 @@
+﻿  MyForm.cpp
+D:\3 курс\УП2\C++\Horse\MyForm.cpp(6,32): warning C4829: Возможно, неправильные параметры функции main. Рекомендуемый вариант - "int main(Platform::Array<Platform::String^>^ argv)"
+  MyForm.obj : обнаружен модуль MSIL; для MSIL последовательная компоновка отключена; выполняется полная компоновка
+  Horse.vcxproj -> D:\3 курс\УП2\C++\Horse\x64\Debug\Horse.exe
